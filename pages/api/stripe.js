@@ -2,6 +2,8 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
+
+        console.log(req.body.cartItems)
         try {
 
             const params = {
@@ -13,11 +15,12 @@ export default async function handler(req, res) {
                         { shipping_rate: 'shr_1LQdwHFWWQFcOCYH8Cm56TZI' },
                         { shipping_rate: 'shr_1LQdzBFWWQFcOCYHRai3Qzsf' },
                     ],
-                    line_items: [{
-                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        price: '{{PRICE_ID}}',
-                        quantity: 1,
-                    }, ],
+                    line_items: req.body.cartItems.map((item) => {
+                        const img = item.image[0].asset._ref;
+                        const newImage = img.replace('image-', 'https://cdn.sanity.io/images/mamn9pvu/production/').replace('-webp', '.webp');
+
+                        console.log('IMAGE', newImage)
+                    }),
                     mode: 'payment',
                     success_url: `${req.headers.origin}/?success=true`,
                     cancel_url: `${req.headers.origin}/?canceled=true`,
@@ -33,3 +36,4 @@ export default async function handler(req, res) {
         res.status(405).end('Method Not Allowed');
     }
 }
+sanity.io
